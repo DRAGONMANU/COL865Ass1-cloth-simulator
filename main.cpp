@@ -80,9 +80,41 @@ int main(int argc, char **argv) {
     lighting.createDefault();
     text.initialize();
 
-    mss.addMass(0,0,0,0); 
-    mss.addMass(1,1.5,0,0); 
-    mss.addSpring(1,1,mss.masses.at(0),mss.masses.at(1));
+    // mss.addMass(0,0,0,0); 
+    // mss.addMass(1,1.5,0,0); 
+    // mss.addSpring(1,1,mss.masses.at(0),mss.masses.at(1));
+    int SIZE = 10;
+    for(int i = 0 ; i < SIZE; ++i)
+    {
+        for (int j = 0; j < SIZE; ++j)
+        {
+            if(i == 0)
+                mss.addMass(0,i/10.0-SIZE/2,j/10-SIZE/2.0,0);
+            else
+                mss.addMass(1,i/10.0-SIZE/2,j/10.0-SIZE/2,0);
+            //Structural Springs
+            if(j>0)
+                mss.addSpring(1,0.15,mss.masses.at(i*SIZE+j-1),mss.masses.at(i*SIZE+j));
+            if(i>0)
+                mss.addSpring(1,0.15,mss.masses.at(i*SIZE+j),mss.masses.at((i-1)*SIZE+j));
+            //Shear Springs
+            if(i>0)
+            {
+                if(j<SIZE-1)
+                    mss.addSpring(1,0.2,mss.masses.at(i*SIZE+j),mss.masses.at((i-1)*SIZE+j+1));
+                if(j>0)
+                    mss.addSpring(1,0.2,mss.masses.at(i*SIZE+j),mss.masses.at((i-1)*SIZE+j-1));
+            }
+            //Flexion Springs
+            
+            if(j>1)
+                mss.addSpring(1,0.25,mss.masses.at(i*SIZE+j-2),mss.masses.at(i*SIZE+j));
+            if(i>1)
+                mss.addSpring(1,0.25,mss.masses.at(i*SIZE+j),mss.masses.at((i-2)*SIZE+j));
+        }
+
+    }
+
 
     while (!window.shouldClose()) {
         camera.processInput(window);
