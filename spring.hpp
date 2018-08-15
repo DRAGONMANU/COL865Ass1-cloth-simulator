@@ -8,7 +8,6 @@ Spring::Spring(float springConstant, float restLength, Mass *mass1, Mass *mass2)
 {
 	k = springConstant;
 	kd = 0.1;
-	dscale = 10;
 	rl = restLength;
 	m1 = mass1;
 	m2 = mass2;
@@ -22,7 +21,7 @@ vec3 Spring::getForce(Mass *refMass)
     // spring force
     //TODO
     float dist = (m1->position - m2->position).norm();
-    float scalar = dscale*k*(dist - rl);
+    float scalar = k*(dist - rl);
     vec3 dir = (m2->position - m1->position).normalized();
 
     // find speed of contraction/expansion for damping force

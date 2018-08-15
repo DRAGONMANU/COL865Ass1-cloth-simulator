@@ -19,12 +19,23 @@ Lighting lighting;
 Text text;
 MassSpringSystem mss;
 
-float dt = 1/60.;
+
+//PARAMETERS    
+int SIZE = 10;
+float MASS = 0.01;
+float STRUCT_CONS = 10.0;
+float SHEAR_CONS = 20.0;
+float FLEXION_CONS = 1.0;
+float STRUCT_LEN = 0.05;
+float SHEAR_LEN = 0.1;
+float FLEXION_LEN = 0.1;
+float dt = 0.001;
 float t = 0;
 bool paused = false;
 vec3 p0, p1;
 
 void drawStuff() {
+    
     // setColor(vec3(0.8,0.2,0.2));
     // drawArrow(vec3(0,0,0), vec3(1,0,0), 0.05);
     // setColor(vec3(0.2,0.6,0.2));
@@ -33,14 +44,21 @@ void drawStuff() {
     // drawArrow(vec3(0,0,0), vec3(0,0,1), 0.05);
     // setPointSize(10);
     // setColor(vec3(0.2,0.2,0.2));
-    // drawPoint(p0);
-    // drawPoint(p1);
+    setPointSize(10);
+	drawPoint(p0);
+    drawPoint(p1);	
 
-	// drawPoint(p0);
- //    drawPoint(p1);	
+    // setPointSize(1);
+    // mss.draw();
 
-    mss.draw();
-    
+    setColor(vec3(0.8,0.2,0.2));
+    for (int i=1; i<SIZE; i++) 
+    {
+        for (int j = 1; j < SIZE; ++j)
+        {
+            drawQuad(mss.masses.at(SIZE*i+j)->position,mss.masses.at(SIZE*i+j-1)->position,mss.masses.at(SIZE*(i-1)+j-1)->position,mss.masses.at(SIZE*(i-1)+j)->position);
+        }
+    }
 
 }
 
@@ -57,11 +75,12 @@ void drawWorld() {
     text.draw("Space to play/pause animation", -0.9, 0.80);
 }
 
-void update(float dt) {
+void update(float dt) 
+{
     t += dt;
-    // p1 = CalculateMidpoint(t);
-    // p1 = CalculateRK4(t);
-    mss.update(dt);
+    mss.update(dt,0); // Symplectic Euler
+    mss.update(dt,1); // Explicit Midpoint
+    mss.update(dt,2); // RK4
 }
 
 void keyPressed(int key) {
@@ -70,51 +89,50 @@ void keyPressed(int key) {
         paused = !paused;
     if (key == GLFW_KEY_ESCAPE)
         exit(0);
-
 }
 
 int main(int argc, char **argv) {
     window.create("Animation", 1024, 768);
     window.onKeyPress(keyPressed);
-    camera.lookAt(vec3(1,1.5,5), vec3(0,0.5,0));
+    camera.lookAt(vec3(1,1.5,5), vec3(0,0,0));
     lighting.createDefault();
     text.initialize();
 
     // mss.addMass(0,0,0,0); 
     // mss.addMass(1,1.5,0,0); 
     // mss.addSpring(1,1,mss.masses.at(0),mss.masses.at(1));
-    int SIZE = 10;
+
+    p0 = vec3(0,0,0);
+    p1 = vec3((SIZE-1)/10.0,0,0);
+
     for(int i = 0 ; i < SIZE; ++i)
     {
         for (int j = 0; j < SIZE; ++j)
         {
-            if(i == 0)
-                mss.addMass(0,i/10.0-SIZE/2,j/10-SIZE/2.0,0);
+            if(i == 0 && (j == 0 || j == SIZE-1))
+                mss.addMass(0,j/10.0,-i/10.0,0);
             else
-                mss.addMass(1,i/10.0-SIZE/2,j/10.0-SIZE/2,0);
+                mss.addMass(MASS,j/10.0,0,-i/10.0);
             //Structural Springs
             if(j>0)
-                mss.addSpring(1,0.15,mss.masses.at(i*SIZE+j-1),mss.masses.at(i*SIZE+j));
+                mss.addSpring(STRUCT_CONS,STRUCT_LEN,mss.masses.at(i*SIZE+j-1),mss.masses.at(i*SIZE+j));
             if(i>0)
-                mss.addSpring(1,0.15,mss.masses.at(i*SIZE+j),mss.masses.at((i-1)*SIZE+j));
+                mss.addSpring(STRUCT_CONS,STRUCT_LEN,mss.masses.at(i*SIZE+j),mss.masses.at((i-1)*SIZE+j));
             //Shear Springs
             if(i>0)
             {
                 if(j<SIZE-1)
-                    mss.addSpring(1,0.2,mss.masses.at(i*SIZE+j),mss.masses.at((i-1)*SIZE+j+1));
+                    mss.addSpring(SHEAR_CONS,SHEAR_LEN,mss.masses.at(i*SIZE+j),mss.masses.at((i-1)*SIZE+j+1));
                 if(j>0)
-                    mss.addSpring(1,0.2,mss.masses.at(i*SIZE+j),mss.masses.at((i-1)*SIZE+j-1));
+                    mss.addSpring(SHEAR_CONS,SHEAR_LEN,mss.masses.at(i*SIZE+j),mss.masses.at((i-1)*SIZE+j-1));
             }
             //Flexion Springs
-            
             if(j>1)
-                mss.addSpring(1,0.25,mss.masses.at(i*SIZE+j-2),mss.masses.at(i*SIZE+j));
+                mss.addSpring(FLEXION_CONS,FLEXION_LEN,mss.masses.at(i*SIZE+j-2),mss.masses.at(i*SIZE+j));
             if(i>1)
-                mss.addSpring(1,0.25,mss.masses.at(i*SIZE+j),mss.masses.at((i-2)*SIZE+j));
+                mss.addSpring(FLEXION_CONS,FLEXION_LEN,mss.masses.at(i*SIZE+j),mss.masses.at((i-2)*SIZE+j));
         }
-
     }
-
 
     while (!window.shouldClose()) {
         camera.processInput(window);
