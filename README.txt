@@ -1,10 +1,8 @@
-This is a basic C++ program that uses "old-style" OpenGL to draw a simple 3D scene. It uses Eigen (http://eigen.tuxfamily.org/) to represent vectors, and GLFW (http://www.glfw.org/) for window management and input handling.
+This is a basic C++ program that uses "old-style" OpenGL to render a cloth. It uses Eigen (http://eigen.tuxfamily.org/) to represent vectors, and GLFW (http://www.glfw.org/) for window management and input handling.
 
-The code in main.cpp should be fairly self-explanatory. Several helper functions are provided in draw.hpp to make it easy to draw basic primitives, which should be enough to do most of the visualization necessary for future assignments.
+Compiling the code is as simple as running the command
 
-At least on my personal Linux machine, compiling the code is as simple as running the command
-
-    g++ `pkg-config --cflags --libs eigen3 glfw3 gl glu` main.cpp
+	g++ main.cpp -std=c++11 `pkg-config --cflags --libs eigen3 glfw3 gl glu`
 
 Maybe this will work for you! I don't know the exact procedure for compiling in Visual Studio on Windows or in XCode on Mac (or even on the IIT labs' Linux machines), but it will basically involve
 

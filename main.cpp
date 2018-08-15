@@ -21,6 +21,7 @@ MassSpringSystem mss;
 
 
 //PARAMETERS    
+int CHOICE = 1; // Integrators:  0 = Symplectic Euler | 1 = Midpoint Method | 3 = RK4
 int SIZE = 10;
 float MASS = 0.01;
 float STRUCT_CONS = 10.0;
@@ -44,12 +45,10 @@ void drawStuff() {
     // drawArrow(vec3(0,0,0), vec3(0,0,1), 0.05);
     // setPointSize(10);
     // setColor(vec3(0.2,0.2,0.2));
+    
     setPointSize(10);
 	drawPoint(p0);
     drawPoint(p1);	
-
-    // setPointSize(1);
-    // mss.draw();
 
     setColor(vec3(0.8,0.2,0.2));
     for (int i=1; i<SIZE; i++) 
@@ -78,9 +77,7 @@ void drawWorld() {
 void update(float dt) 
 {
     t += dt;
-    mss.update(dt,0); // Symplectic Euler
-    mss.update(dt,1); // Explicit Midpoint
-    mss.update(dt,2); // RK4
+    mss.update(dt,CHOICE);
 }
 
 void keyPressed(int key) {

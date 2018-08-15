@@ -18,13 +18,10 @@ vec3 Spring::getForce(Mass *refMass)
 	if (!(refMass == m1 or refMass == m2))
     	return vec3(0, 0, 0);
 
-    // spring force
-    //TODO
     float dist = (m1->position - m2->position).norm();
     float scalar = k*(dist - rl);
     vec3 dir = (m2->position - m1->position).normalized();
 
-    // find speed of contraction/expansion for damping force
     float s1 = m1->velocity.dot(dir);
     float s2 = m2->velocity.dot(dir);
     float dampingScalar = -kd * (s1 + s2);
@@ -35,10 +32,4 @@ vec3 Spring::getForce(Mass *refMass)
         return (-scalar + dampingScalar) * dir;
 
 }
-
-void Spring::draw()
-{
-	drawLine(m1->position,m2->position);
-}
-
 #endif

@@ -39,14 +39,6 @@ public:
     		masses[i]->update(dt,choice);
     	}
     }
-
-    void draw() 
-    {
-	    for (int i=0; i<masses.size(); i++) 
-	        masses[i]->draw();
-		for (int j=0; j<springs.size(); j++) 
-	        springs[j]->draw();
-	}
 };
 
 #endif
