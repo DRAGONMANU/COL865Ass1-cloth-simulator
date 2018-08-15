@@ -17,6 +17,7 @@ Window window;
 Camera camera;
 Lighting lighting;
 Text text;
+MassSpringSystem mss;
 
 float dt = 1/60.;
 float t = 0;
@@ -35,8 +36,11 @@ void drawStuff() {
     // drawPoint(p0);
     // drawPoint(p1);
 
-	drawPoint(p0);
-    drawPoint(p1);	
+	// drawPoint(p0);
+ //    drawPoint(p1);	
+
+    mss.draw();
+    
 
 }
 
@@ -44,8 +48,8 @@ void drawWorld() {
     camera.apply(window);
     lighting.apply();
     clear(vec3(0.9,0.9,0.9));
-    setColor(vec3(0.7,0.7,0.7));
-    drawQuad(vec3(-3,0,-3), vec3(-3,0,3), vec3(3,0,3), vec3(3,0,-3));
+    // setColor(vec3(0.7,0.7,0.7));
+    // drawQuad(vec3(-3,0,-3), vec3(-3,0,3), vec3(3,0,3), vec3(3,0,-3));
     drawStuff();
     setColor(vec3(0,0,0));
     text.draw("WASD and LShift/LCtrl to move camera", -0.9, 0.90);
@@ -57,6 +61,7 @@ void update(float dt) {
     t += dt;
     // p1 = CalculateMidpoint(t);
     // p1 = CalculateRK4(t);
+    mss.update(dt);
 }
 
 void keyPressed(int key) {
@@ -74,6 +79,11 @@ int main(int argc, char **argv) {
     camera.lookAt(vec3(1,1.5,5), vec3(0,0.5,0));
     lighting.createDefault();
     text.initialize();
+
+    mss.addMass(0,0,0,0); 
+    mss.addMass(1,1.5,0,0); 
+    mss.addSpring(1,1,mss.masses.at(0),mss.masses.at(1));
+
     while (!window.shouldClose()) {
         camera.processInput(window);
         if (!paused)
