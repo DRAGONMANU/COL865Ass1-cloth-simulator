@@ -2,8 +2,6 @@
 #define MASS_HPP
 
 #include "common.hpp"
-#include "spring.hpp"
-
 
 class Mass
 {
@@ -64,11 +62,7 @@ public:
 
     void draw()
     {
-        glColor4f(0.0, 0.5, 1.0, 1.0);
-        glPointSize(2.0);
-        glBegin(GL_POINTS);
-        glVertex3f(position.x, position.y, position.z);
-        glEnd();
+        drawPoint(position);
     }
 
     

@@ -2,8 +2,8 @@
 #define SYSTEM_HPP
 
 #include <vector>
-#include "mass.hpp"
 #include "spring.hpp"
+#include "mass.hpp"
 
 using namespace std;
 

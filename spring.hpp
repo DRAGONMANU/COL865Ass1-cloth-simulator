@@ -2,7 +2,8 @@
 #define SPRING_HPP
 
 #include "common.hpp"
-#include "mass.hpp"
+
+class Mass;
 
 class Spring
 {
@@ -30,13 +31,13 @@ public:
    
 	    // spring force
 	    //TODO
-	    float dist = (m1->position - m2->position).mag();
+	    float dist = (m1->position - m2->position).norm();
 	    float scalar = dscale*k*(dist - rl);
 	    vec3 dir = (m2->position - m1->position).normalized();
 
 	    // find speed of contraction/expansion for damping force
-	    float s1 = glm::dot(m1->velocity, dir);
-	    float s2 = glm::dot(m2->velocity, dir);
+	    float s1 = m1->velocity.dot(dir);
+	    float s2 = m2->velocity.dot(dir);
 	    float dampingScalar = -kd * (s1 + s2);
 
 	    if (refMass == m1) {
@@ -49,13 +50,7 @@ public:
     
     void draw()
     {
-    	glLineWidth(1.0);
-	    glColor4f(0.0, 0.3, 1.0, 0.3);
-
-	    glBegin(GL_LINES);
-	    glVertex3f(m1->position.x, m1->position.y, m1->position.z);
-	    glVertex3f(m2->position.x, m2->position.y, m2->position.z);
-	    glEnd();
+    	drawLine(m1->position,m2->position);
     }
 };
 
