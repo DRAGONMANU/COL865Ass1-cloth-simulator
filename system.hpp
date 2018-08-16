@@ -14,6 +14,8 @@ public:
     vector<Spring*> springs;
 	MassSpringSystem()
 	{
+		masses.clear();
+		springs.clear();
 	}
 
 	Mass* addMass(float mass, float x, float y, float z)
@@ -32,11 +34,11 @@ public:
 	    return s;
     }
 
-    void update(float dt,int choice)
+    void update(float dt,int choice, vec3 gravity)
     {
     	for(int i = 0;i<masses.size();i++)
     	{
-    		masses[i]->update(dt,choice);
+    		masses[i]->update(dt,choice,gravity);
     	}
     }
 };
