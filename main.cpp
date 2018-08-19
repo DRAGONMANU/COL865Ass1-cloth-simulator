@@ -21,8 +21,8 @@ MassSpringSystem mss;
 
 
 //PARAMETERS    
-int OPTION = 2; // 0 = single spring | 1 = normal cloth | 2 = Flag in wind
-int CHOICE = 1; // Integrators:  0 = Symplectic Euler | 1 = Midpoint Method | 2 = RK4
+int OPTION = 1; // 0 = single spring | 1 = normal cloth | 2 = Flag in wind
+int CHOICE = 0; // Integrators:  0 = Symplectic Euler | 1 = Midpoint Method | 2 = RK4
 int SIZE = 10;
 float MASS = 0.01;
 float STRUCT_CONS = 10.0;
@@ -37,7 +37,7 @@ float AN = 0.01;
 float AT = 0.001;
 
 
-float dt = 0.007;
+float dt = 0.001;
 float t = 0;
 bool paused = false;
 vec3 p0, p1;
@@ -95,8 +95,6 @@ void drawWorld()
     camera.apply(window);
     lighting.apply();
     clear(vec3(0.9,0.9,0.9));
-    // setColor(vec3(0.7,0.7,0.7));
-    // drawQuad(vec3(-3,0,-3), vec3(-3,0,3), vec3(3,0,3), vec3(3,0,-3));
     drawStuff();
     setColor(vec3(0,0,0));
     text.draw("WASD and LShift/LCtrl to move camera", -0.9, 0.90);
@@ -108,6 +106,11 @@ void update(float dt)
 {
     t += dt;
     mss.update(dt, CHOICE, GRAVITY, WIND, AT, AN);
+    if(t>1)
+    {
+        t=0;
+        cout<<mss.masses.at(1)->position[0]<<endl;
+    } 
 }
 
 void keyPressed(int key) 
@@ -130,6 +133,8 @@ int main(int argc, char **argv)
     if (OPTION==0)
     {
         GRAVITY = vec3(0,0,0);
+        WIND = vec3(0,0,0);
+
         mss.addMass(0,0,0,0); 
         mss.addMass(1,1.5,0,0); 
         mss.addSpring(1,1,mss.masses.at(0),mss.masses.at(1)); 
@@ -139,6 +144,8 @@ int main(int argc, char **argv)
     {
         p0 = vec3(0,0,0);
         p1 = vec3((SIZE-1)/10.0,0,0);
+
+        WIND = vec3(0,0,0);
 
         for(int i = 0 ; i < SIZE; ++i)
         {
