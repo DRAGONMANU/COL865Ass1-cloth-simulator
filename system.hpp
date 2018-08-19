@@ -4,6 +4,7 @@
 #include <vector>
 #include "spring.hpp"
 #include "mass.hpp"
+#include <math.h>
 
 using namespace std;
 
@@ -14,8 +15,6 @@ public:
     vector<Spring*> springs;
 	MassSpringSystem()
 	{
-		masses.clear();
-		springs.clear();
 	}
 
 	Mass* addMass(float mass, float x, float y, float z)
@@ -34,13 +33,82 @@ public:
 	    return s;
     }
 
-    void update(float dt,int choice, vec3 gravity)
+    void update(float dt,int choice, vec3 gravity, vec3 wind, float AT, float AN)
     {
-    	for(int i = 0;i<masses.size();i++)
+    	int side = (int)sqrt(masses.size());
+    	for (int i = 0; i < side; ++i)
     	{
-    		masses[i]->update(dt,choice,gravity);
-    	}
-    }
+	    	for(int j = 0;j < side; ++j)
+	    	{
+	    		vec3 windForce;    	
+	    		if (masses[i*side+j]->mass==0) 
+	        		continue;
+
+			    if (wind.norm()!=0)
+		    	{
+		    		vec3 normal;
+		    		float area;
+		    		if(i>0 && j>0)
+		    		{
+		    			normal = (masses[(i-1)*side+j]->position-masses[i*side+j]->position).cross(masses[i*side+j-1]->position-masses[i*side+j]->position);
+		    			area = normal.norm();
+		    			normal = normal/normal.norm();
+		    		}
+		    		vec3 vn = normal.dot(wind)*normal;
+		    		vec3 vt = wind - vn;
+		    		vec3 fn = AN*area*wind.dot(vn)*normal;
+		    		vec3 ft = AT*area*vt;
+		    		windForce = ft + fn;
+		    	}
+
+			    if(choice==0) // Symplectic Euler
+			    {
+			        vec3 acc = masses[i*side+j]->calculateForces(gravity,windForce) / masses[i*side+j]->mass;
+			        masses[i*side+j]->velocity = masses[i*side+j]->velocity + acc * dt;
+			        masses[i*side+j]->position = masses[i*side+j]->position + masses[i*side+j]->velocity * dt;
+			    }
+			    else if (choice==1) // Midpoint
+			    {
+			        vec3 init_pos = masses[i*side+j]->position;
+			        vec3 init_vel = masses[i*side+j]->velocity;
+			        masses[i*side+j]->velocity = masses[i*side+j]->velocity + masses[i*side+j]->calculateForces(gravity,windForce) / masses[i*side+j]->mass * dt/2;
+			        masses[i*side+j]->position = masses[i*side+j]->position + masses[i*side+j]->velocity * dt/2;        
+			        vec3 v_half = masses[i*side+j]->velocity;
+			        masses[i*side+j]->velocity = init_vel + masses[i*side+j]->calculateForces(gravity,windForce) / masses[i*side+j]->mass * dt;
+			        masses[i*side+j]->position = init_pos + v_half * dt;
+			    }
+			    else if (choice==2) // RK4
+			    {
+			        vec3 k1,k2,k3,k4,l1,l2,l3,l4;
+			        vec3 init_pos = masses[i*side+j]->position;
+			        vec3 init_vel = masses[i*side+j]->velocity;
+
+			        l1 = masses[i*side+j]->calculateForces(gravity,windForce) / masses[i*side+j]->mass;
+			        k1 = masses[i*side+j]->velocity;
+
+			        masses[i*side+j]->position = init_pos + k1 * dt/2;
+			        masses[i*side+j]->velocity = init_vel + l1 * dt/2;
+			        l2 = masses[i*side+j]->calculateForces(gravity,windForce) / masses[i*side+j]->mass;
+			        k2 = masses[i*side+j]->velocity;
+
+			        masses[i*side+j]->position = init_pos + k2 * dt/2;
+			        masses[i*side+j]->velocity = init_vel + l2 * dt/2;
+			        l3 = masses[i*side+j]->calculateForces(gravity,windForce) / masses[i*side+j]->mass;
+			        k3 = masses[i*side+j]->velocity;
+
+			        masses[i*side+j]->position = init_pos + k3 * dt;
+			        masses[i*side+j]->velocity = init_vel + l3 * dt;
+			        l4 = masses[i*side+j]->calculateForces(gravity,windForce) / masses[i*side+j]->mass;
+			        k4 = masses[i*side+j]->velocity;
+
+			        masses[i*side+j]->velocity = init_vel + (1/6.0*(l1)+1/3.0*(l2)+1/3.0*(l3)+1/6.0*(l4)) * dt;
+			        masses[i*side+j]->position = init_pos + (1/6.0*(k1)+1/3.0*(k2)+1/3.0*(k3)+1/6.0*(k4)) * dt;   
+			    }
+			    else
+			        exit(0);
+	    	}
+	    }
+	}
 };
 
 #endif

@@ -22,7 +22,7 @@ MassSpringSystem mss;
 
 //PARAMETERS    
 int OPTION = 2; // 0 = single spring | 1 = normal cloth | 2 = Flag in wind
-int CHOICE = 1; // Integrators:  0 = Symplectic Euler | 1 = Midpoint Method | 3 = RK4
+int CHOICE = 1; // Integrators:  0 = Symplectic Euler | 1 = Midpoint Method | 2 = RK4
 int SIZE = 10;
 float MASS = 0.01;
 float STRUCT_CONS = 10.0;
@@ -31,8 +31,13 @@ float FLEXION_CONS = 1.0;
 float STRUCT_LEN = 0.05;
 float SHEAR_LEN = 0.1;
 float FLEXION_LEN = 0.1;
-vec3 GRAVITY = vec3(0.0, -9.81, 1.0);
-float dt = 0.001;
+vec3 GRAVITY = vec3(0.0, -9.81, 0.0);
+vec3 WIND = vec3(10,100,100);
+float AN = 0.01;
+float AT = 0.001;
+
+
+float dt = 0.007;
 float t = 0;
 bool paused = false;
 vec3 p0, p1;
@@ -102,7 +107,7 @@ void drawWorld()
 void update(float dt) 
 {
     t += dt;
-    mss.update(dt,CHOICE,GRAVITY);
+    mss.update(dt, CHOICE, GRAVITY, WIND, AT, AN);
 }
 
 void keyPressed(int key) 

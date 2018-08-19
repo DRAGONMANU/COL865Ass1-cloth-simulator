@@ -19,8 +19,7 @@ public:
     void setPosition(float x, float y, float z);
     void addSpring(Spring *s);
 
-    vec3 calculateForces(vec3 gravity);
-    void update(float dt, int choice, vec3 gravity);
+    vec3 calculateForces(vec3 gravity,vec3 wind);
 };
 
 #endif
